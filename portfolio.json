@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "name": "release-readiness-board-ryan-vo",
+  "owner": "A220man",
+  "email": "ryandtvo@gmail.com",
+  "domain": "devops",
+  "summary": "Track release criteria and evidence, resolve blockers, obtain independent revision-bound approvals, and export auditable release notes with deterministic risk diagnostics.",
+  "workflows": [
+    "Collect and review release criteria with retained evidence",
+    "Resolve blockers and obtain independent approvals for the current evidence revision",
+    "Transition and freeze releases, inspect risk diagnostics and export release notes"
+  ],
+  "auth": "oidc-keycloak-saml-broker",
+  "llm_providers": [
+    "openai-compatible",
+    "anthropic",
+    "gemini",
+    "ollama"
+  ],
+  "version": "1.0.0"
+}

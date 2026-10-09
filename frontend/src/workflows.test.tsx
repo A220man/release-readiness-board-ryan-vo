@@ -1,0 +1,17 @@
+import {beforeEach,it,expect,vi} from 'vitest';
+import {render,screen,fireEvent,waitFor} from '@testing-library/react';
+import {CriterionEditor} from './CriteriaPanel';
+import {ApprovalsPanel} from './ApprovalsPanel';
+import {InsightsPanel} from './InsightsPanel';
+import {api} from './api';
+import {Criterion,Release,User} from './types';
+vi.mock('./api',()=>({api:vi.fn(),download:vi.fn()}));
+beforeEach(()=>vi.resetAllMocks());
+const criterion:Criterion={id:'c1',name:'Security tests',description:'',category:'security',status:'pending',required:true,evidence:'',evidence_url:'',assigned_to:'',reviewed_by:''};
+const user:User={subject:'creator',username:'Creator',roles:['reviewer'],csrf_token:'fixture'};
+const release={id:'r1',created_by:'creator',status:'in_review',revision:3} as Release;
+it('requires saved evidence before a pass review',()=>{render(<CriterionEditor item={criterion} editable refresh={vi.fn()}/>);expect(screen.getByText('Pass review')).toBeDisabled();fireEvent.change(screen.getByLabelText('Evidence for Security tests'),{target:{value:'Job 42 passed'}});expect(screen.getByText('Pass review')).toBeDisabled();});
+it('saves evidence and refreshes the persisted state',async()=>{vi.mocked(api).mockResolvedValue({});const refresh=vi.fn();render(<CriterionEditor item={criterion} editable refresh={refresh}/>);fireEvent.change(screen.getByLabelText('Evidence for Security tests'),{target:{value:'Job 42 passed'}});fireEvent.click(screen.getByText('Save evidence'));await waitFor(()=>expect(refresh).toHaveBeenCalledOnce());expect(api).toHaveBeenCalledWith('/api/criteria/c1','PUT',{evidence:'Job 42 passed',assigned_to:''});});
+it('prevents the creator from recording their own approval',()=>{render(<ApprovalsPanel release={release} items={[]} user={user} refresh={vi.fn()}/>);expect(screen.queryByText('Record decision')).not.toBeInTheDocument();expect(screen.getByText(/An independent reviewer can record/)).toBeInTheDocument();});
+it('distinguishes historical approval revisions',()=>{render(<ApprovalsPanel release={release} user={user} refresh={vi.fn()} items={[{id:'a1',approver:'second',role:'operator',decision:'approved',release_revision:2,conditions:'',comment:'Old evidence',created_at:'2026-01-01'}]}/>);expect(screen.getByText(/Historical \/ superseded/)).toBeInTheDocument();});
+it('requires consent before optional advice',async()=>{vi.mocked(api).mockResolvedValue({analysis:'Check coverage'});render(<InsightsPanel rid="r1" risk={null} audit={[]} editable/>);expect(screen.getByText('Request advice')).toBeDisabled();fireEvent.click(screen.getByRole('checkbox'));fireEvent.click(screen.getByText('Request advice'));await waitFor(()=>expect(api).toHaveBeenCalledWith('/api/llm/analyze/r1','POST',{consent:true}));});
