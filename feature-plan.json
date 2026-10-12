@@ -1,0 +1,92 @@
+{
+  "schema_version": 1,
+  "current_feature": "release-search-and-filtering",
+  "features": [
+    {
+      "id": "evidence-backed-releases",
+      "title": "Evidence-backed release lifecycle and state machine",
+      "status": "done",
+      "acceptance": [
+        "Create release drafts, record criteria with evidence and owners, enforce passing reviews for required criteria, and freeze approved evidence."
+      ],
+      "implementation": [
+        "backend/app/api/releases.py",
+        "backend/app/services/release_service.py",
+        "backend/app/services/invariants.py",
+        "frontend/src/App.tsx",
+        "frontend/src/CriteriaPanel.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_release_invariants.py",
+        "backend/tests/test_api_sessions.py",
+        "frontend/src/workflows.test.tsx"
+      ]
+    },
+    {
+      "id": "independent-approvals-and-blockers",
+      "title": "Independent revision-bound approvals and blocker resolution",
+      "status": "done",
+      "acceptance": [
+        "Track blockers with severity and auto-categorization; reject approval by release creator; tie approval decisions strictly to current evidence revision."
+      ],
+      "implementation": [
+        "backend/app/api/approvals.py",
+        "backend/app/api/blockers.py",
+        "backend/app/services/approval_service.py",
+        "backend/app/services/blocker_service.py",
+        "frontend/src/ApprovalsPanel.tsx",
+        "frontend/src/BlockersPanel.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_release_invariants.py",
+        "backend/tests/test_api_sessions.py",
+        "frontend/src/workflows.test.tsx"
+      ]
+    },
+    {
+      "id": "deterministic-risk-and-exports",
+      "title": "Deterministic risk scoring, evaluation diagnostics, and audit export",
+      "status": "done",
+      "acceptance": [
+        "Calculate deterministic risk index with feature weights and NLP classification; export release notes in JSON/Markdown/CSV; provide reproducible evaluation corpus."
+      ],
+      "implementation": [
+        "backend/app/core/risk_engine.py",
+        "backend/app/services/evaluation.py",
+        "backend/app/services/export_service.py",
+        "frontend/src/InsightsPanel.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_diagnostics_providers.py",
+        "frontend/src/workflows.test.tsx"
+      ]
+    },
+    {
+      "id": "release-search-and-filtering",
+      "title": "Interactive release search and lifecycle status filtering",
+      "status": "done",
+      "acceptance": [
+        "Filter releases by lifecycle status (draft, in_review, approved, released, cancelled) and search by keyword across name and description with filter-aware pagination and empty states in both API and UI."
+      ],
+      "implementation": [
+        "backend/app/services/release_service.py",
+        "backend/app/api/releases.py",
+        "frontend/src/App.tsx"
+      ],
+      "tests": [
+        "backend/tests/test_release_search_filter.py",
+        "frontend/src/workflows.test.tsx"
+      ]
+    },
+    {
+      "id": "in-app-release-notes-preview",
+      "title": "In-app structured release notes preview modal",
+      "status": "planned",
+      "acceptance": [
+        "Preview generated release notes directly in the UI before exporting or releasing."
+      ],
+      "implementation": [],
+      "tests": []
+    }
+  ]
+}

@@ -26,14 +26,7 @@ class BlockerService:
         blocker_id = str(uuid.uuid4())
         now = datetime.now(timezone.utc).isoformat()
 
-        await touch_release(self.db,data["release_id"])
-
-        # Verify release exists
-        cursor = await self.db.execute(
-            "SELECT id FROM releases WHERE id = ?", (data["release_id"],)
-        )
-        if not await cursor.fetchone():
-            raise ValueError(f"Release {data['release_id']} not found")
+        await touch_release(self.db, data["release_id"])
 
         # NLP auto-classification
         classification = risk_engine.classify_blocker(
