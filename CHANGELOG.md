@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.1.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
+## [Unreleased]
+
+- Add interactive release search and lifecycle status filtering to the workspace dashboard.
+- Support keyword queries across release names and descriptions with reactive filter reset.
+- Filter releases by lifecycle status (`draft`, `in_review`, `approved`, `released`, `cancelled`) with filter-aware pagination and empty states.
+- Optimize criteria and blocker summary querying in backend release retrieval.
+- Add comprehensive backend and frontend test suites for search, status filtering, and query combinations.
+
 ## [1.0.0] - 2026-10-09
 
 ## 1.0.0

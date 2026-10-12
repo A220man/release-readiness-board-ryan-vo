@@ -65,66 +65,42 @@ class ReleaseService:
 
         release = dict(row)
 
-        # Criteria summary
-        crit_cursor = await self.db.execute(
-            "SELECT status, required FROM criteria WHERE release_id = ?",
-            (release_id,),
-        )
-        criteria_rows = await crit_cursor.fetchall()
+        # Criteria summary and data
+        crit_rows = await (await self.db.execute("SELECT * FROM criteria WHERE release_id = ?", (release_id,))).fetchall()
+        all_criteria = [dict(cr) for cr in crit_rows]
         criteria_summary = {
-            "total": 0, "passed": 0, "failed": 0, "pending": 0,
+            "total": len(all_criteria), "passed": 0, "failed": 0, "pending": 0,
             "in_progress": 0, "waived": 0, "required_total": 0, "required_passed": 0,
         }
-        for cr in criteria_rows:
-            criteria_summary["total"] += 1
-            status = cr["status"]
-            if status in criteria_summary:
-                criteria_summary[status] += 1
+        for cr in all_criteria:
+            st = cr["status"]
+            if st in criteria_summary:
+                criteria_summary[st] += 1
             if cr["required"]:
                 criteria_summary["required_total"] += 1
-                if status == "passed":
+                if st == "passed":
                     criteria_summary["required_passed"] += 1
         release["criteria_summary"] = criteria_summary
 
-        # Blocker summary
-        block_cursor = await self.db.execute(
-            "SELECT status, severity FROM blockers WHERE release_id = ?",
-            (release_id,),
-        )
-        blocker_rows = await block_cursor.fetchall()
+        # Blocker summary and data
+        block_rows = await (await self.db.execute("SELECT * FROM blockers WHERE release_id = ?", (release_id,))).fetchall()
+        all_blockers = [dict(br) for br in block_rows]
         blocker_summary = {
-            "total": 0, "open": 0, "investigating": 0, "mitigated": 0,
+            "total": len(all_blockers), "open": 0, "investigating": 0, "mitigated": 0,
             "resolved": 0, "accepted": 0, "critical": 0, "high": 0,
         }
-        for br in blocker_rows:
-            blocker_summary["total"] += 1
-            bstatus = br["status"]
-            if bstatus in blocker_summary:
-                blocker_summary[bstatus] += 1
+        for br in all_blockers:
+            bst = br["status"]
+            if bst in blocker_summary:
+                blocker_summary[bst] += 1
             sev = br["severity"]
-            if sev in ("critical", "high"):
-                if br["status"] in ("open", "investigating"):
-                    blocker_summary[sev] += 1
+            if sev in ("critical", "high") and bst in ("open", "investigating"):
+                blocker_summary[sev] += 1
         release["blocker_summary"] = blocker_summary
 
         # Risk score
         from app.core.risk_engine import risk_engine
-
-        all_criteria = []
-        full_crit_cursor = await self.db.execute(
-            "SELECT * FROM criteria WHERE release_id = ?", (release_id,),
-        )
-        for cr in await full_crit_cursor.fetchall():
-            all_criteria.append(dict(cr))
-
-        all_blockers = []
-        full_block_cursor = await self.db.execute(
-            "SELECT * FROM blockers WHERE release_id = ?", (release_id,),
-        )
-        for br in await full_block_cursor.fetchall():
-            all_blockers.append(dict(br))
-
-        all_approvals = await current_decisions(self.db,release_id)
+        all_approvals = await current_decisions(self.db, release_id)
 
         days_to_target = 30
         if release.get("target_date"):
@@ -158,12 +134,13 @@ class ReleaseService:
         conditions: list[str] = []
         params: list[Any] = []
 
-        if status_filter:
+        if status_filter and status_filter.strip():
             conditions.append("status = ?")
-            params.append(status_filter)
-        if search:
+            params.append(status_filter.strip())
+        if search and search.strip():
             conditions.append("(name LIKE ? OR description LIKE ?)")
-            params.extend([f"%{search}%", f"%{search}%"])
+            q = f"%{search.strip()}%"
+            params.extend([q, q])
 
         where = f"WHERE {' AND '.join(conditions)}" if conditions else ""
 

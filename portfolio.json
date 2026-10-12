@@ -4,7 +4,7 @@
   "owner": "A220man",
   "email": "ryandtvo@gmail.com",
   "domain": "devops",
-  "summary": "Track release criteria and evidence, resolve blockers, obtain independent revision-bound approvals, and export auditable release notes with deterministic risk diagnostics.",
+  "summary": "Work in progress: release-readiness-board-ryan-vo",
   "workflows": [
     "Collect and review release criteria with retained evidence",
     "Resolve blockers and obtain independent approvals for the current evidence revision",
@@ -17,5 +17,6 @@
     "gemini",
     "ollama"
   ],
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "status": "work-in-progress"
 }

@@ -168,82 +168,46 @@ class RiskEngine:
         """Analyze historical releases to find recurring risk patterns."""
         if not releases_history:
             return []
-
         patterns: list[dict[str, Any]] = []
 
-        # Pattern 1: Recurring blocker categories
-        blocker_categories: Counter[str] = Counter()
-        for release in releases_history:
-            for blocker in release.get("blockers", []):
-                cat = blocker.get("category", "uncategorized")
-                if cat:
-                    blocker_categories[cat] += 1
-
-        for cat, count in blocker_categories.most_common(3):
-            if count >= 2:
+        b_cats = Counter(b.get("category", "uncategorized") for r in releases_history for b in r.get("blockers", []) if b.get("category"))
+        for cat, cnt in b_cats.most_common(3):
+            if cnt >= 2:
                 patterns.append({
-                    "pattern": "recurring_blocker_category",
-                    "category": cat,
-                    "frequency": count,
-                    "description": f"'{cat}' blockers appeared in {count} releases",
+                    "pattern": "recurring_blocker_category", "category": cat, "frequency": cnt,
+                    "description": f"'{cat}' blockers appeared in {cnt} releases",
                     "recommendation": f"Establish proactive {cat} review gates before release",
                 })
 
-        # Pattern 2: Frequently failing criteria categories
-        criteria_failures: Counter[str] = Counter()
-        for release in releases_history:
-            for criterion in release.get("criteria", []):
-                if criterion.get("status") == "failed":
-                    criteria_failures[criterion.get("category", "unknown")] += 1
-
-        for cat, count in criteria_failures.most_common(3):
-            if count >= 2:
+        c_fails = Counter(c.get("category", "unknown") for r in releases_history for c in r.get("criteria", []) if c.get("status") == "failed")
+        for cat, cnt in c_fails.most_common(3):
+            if cnt >= 2:
                 patterns.append({
-                    "pattern": "recurring_criteria_failure",
-                    "category": cat,
-                    "frequency": count,
-                    "description": f"'{cat}' criteria failed in {count} releases",
+                    "pattern": "recurring_criteria_failure", "category": cat, "frequency": cnt,
+                    "description": f"'{cat}' criteria failed in {cnt} releases",
                     "recommendation": f"Invest in {cat} automation and earlier validation",
                 })
 
-        # Pattern 3: Risk score correlation with outcomes
-        completed = [
-            r for r in releases_history if r.get("status") in ("released", "cancelled")
-        ]
+        completed = [r for r in releases_history if r.get("status") in ("released", "cancelled")]
         if len(completed) >= 2:
-            released_scores = [
-                r.get("risk_score", 50) for r in completed if r.get("status") == "released"
-            ]
-            cancelled_scores = [
-                r.get("risk_score", 50) for r in completed if r.get("status") == "cancelled"
-            ]
-            if released_scores and cancelled_scores:
-                avg_released = sum(released_scores) / len(released_scores)
-                avg_cancelled = sum(cancelled_scores) / len(cancelled_scores)
-                if avg_cancelled > avg_released + 10:
+            rel = [r.get("risk_score", 50) for r in completed if r.get("status") == "released"]
+            can = [r.get("risk_score", 50) for r in completed if r.get("status") == "cancelled"]
+            if rel and can:
+                avg_rel, avg_can = sum(rel) / len(rel), sum(can) / len(can)
+                if avg_can > avg_rel + 10:
                     patterns.append({
-                        "pattern": "risk_score_predictive",
-                        "frequency": len(completed),
-                        "description": (
-                            f"Cancelled releases averaged risk score {avg_cancelled:.0f} "
-                            f"vs {avg_released:.0f} for released"
-                        ),
+                        "pattern": "risk_score_predictive", "frequency": len(completed),
+                        "description": f"Cancelled releases averaged risk score {avg_can:.0f} vs {avg_rel:.0f} for released",
                         "recommendation": "Risk scores above threshold correlate with cancellation",
                     })
 
-        # Pattern 4: Time pressure correlation
-        overdue_releases = sum(
-            1 for r in releases_history
-            if r.get("days_to_target", 30) < 0 and r.get("status") == "cancelled"
-        )
-        if overdue_releases >= 2:
+        overdue = sum(1 for r in releases_history if r.get("days_to_target", 30) < 0 and r.get("status") == "cancelled")
+        if overdue >= 2:
             patterns.append({
-                "pattern": "overdue_cancellation",
-                "frequency": overdue_releases,
-                "description": f"{overdue_releases} overdue releases were cancelled",
+                "pattern": "overdue_cancellation", "frequency": overdue,
+                "description": f"{overdue} overdue releases were cancelled",
                 "recommendation": "Set realistic target dates or add buffer time",
             })
-
         return patterns
 
     def assess_readiness(
@@ -257,38 +221,38 @@ class RiskEngine:
         risk_level = self.classify_risk(risk_score)
 
         risk_factors: list[str] = []
-        if features["required_criteria_pass_rate"] < 1.0:
-            pct = features["required_criteria_pass_rate"] * 100
-            risk_factors.append(f"Required criteria pass rate is {pct:.0f}% (must be 100%)")
-        if features["critical_blocker_count"] > 0:
-            n = int(features["critical_blocker_count"])
-            risk_factors.append(f"{n} critical blocker(s) remain open")
-        if features["high_blocker_count"] > 0:
-            n = int(features["high_blocker_count"])
-            risk_factors.append(f"{n} high-severity blocker(s) remain open")
-        if features["evidence_coverage"] < 0.5:
-            pct = features["evidence_coverage"] * 100
-            risk_factors.append(f"Evidence coverage is only {pct:.0f}%")
-        if features["approval_rate"] < 0.5 and features.get("days_to_target", 30) < 7:
-            risk_factors.append("Low approval rate with approaching deadline")
-        if features["waived_criteria_ratio"] > 0.2:
-            pct = features["waived_criteria_ratio"] * 100
-            risk_factors.append(f"{pct:.0f}% of criteria were waived")
-        if features["unassigned_criteria_ratio"] > 0.3:
-            pct = features["unassigned_criteria_ratio"] * 100
-            risk_factors.append(f"{pct:.0f}% of criteria are unassigned")
+        req_rate = features["required_criteria_pass_rate"]
+        if req_rate < 1.0:
+            risk_factors.append(f"Required criteria pass rate is {req_rate * 100:.0f}% (must be 100%)")
+        crit_cnt = int(features["critical_blocker_count"])
+        if crit_cnt > 0:
+            risk_factors.append(f"{crit_cnt} critical blocker(s) remain open")
+        high_cnt = int(features["high_blocker_count"])
+        if high_cnt > 0:
+            risk_factors.append(f"{high_cnt} high-severity blocker(s) remain open")
+        cov = features["evidence_coverage"]
+        if cov < 0.5:
+            risk_factors.append(f"Evidence coverage is only {cov * 100:.0f}%")
         days = features.get("days_to_target", 30)
+        if features["approval_rate"] < 0.5 and (days is not None and days < 7):
+            risk_factors.append("Low approval rate with approaching deadline")
+        waived_ratio = features["waived_criteria_ratio"]
+        if waived_ratio > 0.2:
+            risk_factors.append(f"{waived_ratio * 100:.0f}% of criteria were waived")
+        unassigned_ratio = features["unassigned_criteria_ratio"]
+        if unassigned_ratio > 0.3:
+            risk_factors.append(f"{unassigned_ratio * 100:.0f}% of criteria are unassigned")
         if days is not None and days < 0:
             risk_factors.append(f"Release is {abs(int(days))} day(s) overdue")
 
         recommendations: list[str] = []
-        if features["required_criteria_pass_rate"] < 1.0:
+        if req_rate < 1.0:
             recommendations.append("Address all failing required criteria before approval")
-        if features["critical_blocker_count"] > 0:
+        if crit_cnt > 0:
             recommendations.append("Resolve critical blockers immediately")
-        if features["evidence_coverage"] < 0.8:
+        if cov < 0.8:
             recommendations.append("Collect evidence for uncovered criteria")
-        if features["unassigned_criteria_ratio"] > 0.2:
+        if unassigned_ratio > 0.2:
             recommendations.append("Assign owners to unassigned criteria")
         if features["approval_rate"] < 0.5:
             recommendations.append("Obtain additional stakeholder approvals")
@@ -305,10 +269,8 @@ class RiskEngine:
                 and features["required_criteria_pass_rate"] == 1.0
             ),
         }
-
         if history:
             result["patterns"] = self.detect_risk_patterns(history)
-
         return result
 
 
