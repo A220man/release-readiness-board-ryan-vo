@@ -3,6 +3,7 @@ import {render,screen,fireEvent,waitFor} from '@testing-library/react';
 import {CriterionEditor} from './CriteriaPanel';
 import {ApprovalsPanel} from './ApprovalsPanel';
 import {InsightsPanel} from './InsightsPanel';
+import {ReleaseNotesPreview} from './ReleaseNotesPreview';
 import {api} from './api';
 import {Criterion,Release,User} from './types';
 import App from './App';
@@ -20,3 +21,23 @@ it('prevents the creator from recording their own approval',()=>{render(<Approva
 it('distinguishes historical approval revisions',()=>{render(<ApprovalsPanel release={release} user={user} refresh={vi.fn()} items={[{id:'a1',approver:'second',role:'operator',decision:'approved',release_revision:2,conditions:'',comment:'Old evidence',created_at:'2026-01-01'}]}/>);expect(screen.getByText(/Historical \/ superseded/)).toBeInTheDocument();});
 it('requires consent before optional advice',async()=>{vi.mocked(api).mockResolvedValue({analysis:'Check coverage'});render(<InsightsPanel rid="r1" risk={null} audit={[]} editable/>);expect(screen.getByText('Request advice')).toBeDisabled();fireEvent.click(screen.getByRole('checkbox'));fireEvent.click(screen.getByText('Request advice'));await waitFor(()=>expect(api).toHaveBeenCalledWith('/api/llm/analyze/r1','POST',{consent:true}));});
 it('supports search query and status filter in workspace list',async()=>{vi.mocked(api).mockImplementation(async(url:string)=>{if(url==='/api/auth/mode')return{mode:'demo'};if(url==='/api/auth/me')return user;if(url.startsWith('/api/releases/'))return{items:[],total:0};return{};});render(<App/>);await waitFor(()=>expect(screen.getByPlaceholderText('Search by name or description…')).toBeInTheDocument());fireEvent.change(screen.getByPlaceholderText('Search by name or description…'),{target:{value:'Payment'}});fireEvent.change(screen.getByLabelText('Status'),{target:{value:'in_review'}});fireEvent.click(screen.getByText('Search'));await waitFor(()=>{expect(api).toHaveBeenCalledWith(expect.stringContaining('search=Payment'));expect(api).toHaveBeenCalledWith(expect.stringContaining('status=in_review'));});expect(screen.getByText('No releases match the active filter or search query.')).toBeInTheDocument();});
+it('opens release notes preview and fetches notes on demand',async()=>{
+  const notes={
+    release_name:'Test Release',version:'1.0.0',status:'approved',evidence_revision:2,
+    date:'2026-12-01',summary:'Test summary',
+    criteria_results:[{name:'Security tests',status:'passed',required:true,evidence:'Job 42 passed'}],
+    blockers_resolved:[],blockers:[],
+    approvals:[{approver:'reviewer',decision:'approved',release_revision:2,comment:'Looks good'}],
+    risk_assessment:{risk_score:12,risk_level:'low',ready_for_release:true,risk_factors:[],recommendations:[],features:{}},
+    generated_at:new Date().toISOString()
+  };
+  vi.mocked(api).mockResolvedValue(notes);
+  render(<ReleaseNotesPreview rid="r1" open={true} onClose={vi.fn()}/>);
+  expect(screen.getByText('Loading…')).toBeInTheDocument();
+  await waitFor(()=>expect(screen.getByText(/Test Release/)).toBeInTheDocument());
+  expect(screen.getByText(/Security tests/)).toBeInTheDocument();
+  expect(screen.getByText(/Job 42 passed/)).toBeInTheDocument();
+  expect(screen.getByText(/reviewer/)).toBeInTheDocument();
+  expect(screen.getByText(/Looks good/)).toBeInTheDocument();
+  expect(api).toHaveBeenCalledWith('/api/releases/r1/release-notes');
+});

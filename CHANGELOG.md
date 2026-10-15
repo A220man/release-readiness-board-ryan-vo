@@ -1,10 +1,14 @@
 # Changelog
 
-## 1.1.0 — work-in-progress checkpoint
+## 1.2.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
 
-## [Unreleased]
+## 1.1.0 — 2026-10-15
+
+- Add in-app release notes preview modal for reviewing generated notes before export or release.
+- Fetch and render structured release notes including criteria, blockers, approvals, and risk assessment.
+- Add "Preview release notes" button to Insights panel with modal overlay and loading state.
 
 - Add interactive release search and lifecycle status filtering to the workspace dashboard.
 - Support keyword queries across release names and descriptions with reactive filter reset.
@@ -13,8 +17,6 @@ Partial code published for continued development. Known issues: STATUS.md.
 - Add comprehensive backend and frontend test suites for search, status filtering, and query combinations.
 
 ## [1.0.0] - 2026-10-09
-
-## 1.0.0
 
 - Track release criteria, reviewed evidence, blockers, owners, and risk acceptance.
 - Require independent approval of the current evidence revision before approval or release.

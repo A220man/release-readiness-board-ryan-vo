@@ -54,8 +54,12 @@ Tests: `backend/tests/test_release_search_filter.py`, `frontend/src/workflows.te
 
 ### in-app-release-notes-preview — In-app structured release notes preview modal
 
-Status: planned
+Status: done
 
 Acceptance:
 - Preview generated release notes directly in the UI before exporting or releasing.
+
+Implementation: `frontend/src/ReleaseNotesPreview.tsx`, `frontend/src/InsightsPanel.tsx`
+
+Tests: `frontend/src/workflows.test.tsx`
 
