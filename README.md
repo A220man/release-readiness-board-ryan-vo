@@ -3,15 +3,14 @@
 > Work in progress. This checkpoint may be incomplete or fail tests. See PLAN.md and STATUS.md before use.
 
 
-Current version: `1.0.0`.
+Current version: `1.1.0`.
 
 A full-stack release workspace for collecting evidence, resolving blockers, obtaining independent approvals and exporting an audit-ready release record. It combines an explicit release state machine with deterministic risk diagnostics and optional model advice. Approval authority stays with authenticated humans; a score or model response cannot release anything.
 
 ## Workflows
 
 1. **Build the evidence.** Search existing releases by keyword or filter by lifecycle status (`draft`, `in_review`, `approved`, `released`, `cancelled`). Create a draft, add required and optional criteria, record evidence and owners, and pass/fail each review. Track blockers with a severity, classification and resolution or acceptance rationale.
-2. **Obtain an independent decision.** Submit for review. A different authenticated subject records an approval, rejection or conditional decision tied to the current evidence revision. Editing evidence increments the revision and invalidates prior decisions. All required criteria must have passing reviews and evidence; unresolved blockers and current rejections/conditions prevent approval.
-3. **Publish the release record.** An admin approves the release; an operator or admin can mark it released after a second gate check. Approved evidence is frozen until returned to review. Released records are immutable. Inspect retained audit events, heuristic diagnostics, review/release snapshots and export JSON, Markdown or spreadsheet-safe CSV notes.
+3. **Publish the release record.** An admin approves the release; an operator or admin can mark it released after a second gate check. Approved evidence is frozen until returned to review. Released records are immutable. Inspect retained audit events, heuristic diagnostics, review/release snapshots and export JSON, Markdown or spreadsheet-safe CSV notes. Preview generated release notes in a modal before exporting or releasing.
 
 ## Architecture
 

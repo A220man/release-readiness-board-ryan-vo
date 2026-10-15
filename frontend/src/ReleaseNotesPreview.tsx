@@ -1,0 +1,10 @@
+import {useEffect,useState} from 'react';
+import {api} from './api';
+
+export interface ReleaseNotesPreviewProps{rid:string;open:boolean;onClose:()=>void;}
+interface N{release_name:string;version:string;status:string;evidence_revision:number;date:string|null;summary:string;criteria_results:Array<{name:string;status:string;required:boolean;evidence:string}>;blockers:Array<{title:string;status:string;resolution:string}>;approvals:Array<{approver:string;decision:string;release_revision:number;comment:string}>;risk_assessment:{risk_score:number;risk_level:string;ready_for_release:boolean;risk_factors:string[];recommendations:string[];features:Record<string,number>};generated_at:string;}
+export function ReleaseNotesPreview({rid,open,onClose}:ReleaseNotesPreviewProps){
+  const [n,setN]=useState<N|null>(null),[e,setE]=useState(''),[b,setB]=useState(false);
+  useEffect(()=>{if(open){setB(true);setE('');api<N>(`/api/releases/${rid}/release-notes`).then(setN).catch(x=>setE((x as Error).message)).finally(()=>setB(false));}else setN(null);},[open,rid]);
+  if(!open)return null;
+  return(<div className="mo" onClick={onClose} role="dialog" aria-modal="true" aria-labelledby="pt"><div className="md" onClick={e=>e.stopPropagation()}><header><h2 id="pt">Release notes preview</h2><button className="cl" onClick={onClose} aria-label="Close preview">×</button></header>{b&&<p className="ld">Loading…</p>}{e&&<p className="error">{e}</p>}{n&&(<div className="pc"><h3>{n.release_name} v{n.version}</h3><div className="mt"><span className="badge">{n.status}</span><span>Rev {n.evidence_revision}</span>{n.date&&<span>Target: {n.date}</span>}</div><p>{n.summary||'No description.'}</p><pre>{JSON.stringify({criteria:n.criteria_results,blockers:n.blockers,approvals:n.approvals,risk:n.risk_assessment},null,2)}</pre></div>)}</div></div>);}

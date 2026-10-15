@@ -81,12 +81,17 @@
     {
       "id": "in-app-release-notes-preview",
       "title": "In-app structured release notes preview modal",
-      "status": "planned",
+      "status": "done",
       "acceptance": [
         "Preview generated release notes directly in the UI before exporting or releasing."
       ],
-      "implementation": [],
-      "tests": []
+      "implementation": [
+        "frontend/src/ReleaseNotesPreview.tsx",
+        "frontend/src/InsightsPanel.tsx"
+      ],
+      "tests": [
+        "frontend/src/workflows.test.tsx"
+      ]
     }
   ]
 }
