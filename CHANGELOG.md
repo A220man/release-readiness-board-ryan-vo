@@ -1,8 +1,19 @@
 # Changelog
 
+## 1.3.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
 ## 1.2.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
+
+### 1.2.0 checkpoint improvement
+
+- Enhance release notes preview modal with structured tabbed interface (Overview, Criteria, Blockers, Approvals, Risk).
+- Replace raw JSON dump with formatted tables for criteria (with required/evidence columns), blockers (with resolution), approvals (with revision/comment), and risk assessment (with metrics, factors, recommendations, scoring features).
+- Add status badges with color coding (passed/resolved/approved=green, failed/rejected=red, open=amber).
+- Update frontend test to verify tabbed navigation and content rendering.
 
 ## 1.1.0 — 2026-10-15
 
