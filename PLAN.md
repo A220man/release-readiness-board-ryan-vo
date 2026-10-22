@@ -63,3 +63,16 @@ Implementation: `frontend/src/ReleaseNotesPreview.tsx`, `frontend/src/InsightsPa
 
 Tests: `frontend/src/workflows.test.tsx`
 
+### release-comparison-and-trending — Cross-release comparison and risk trending
+
+Status: planned
+
+Acceptance:
+- Compare two releases side-by-side showing criteria delta, blocker changes, risk score evolution, and approval history differences.
+- Display risk trend across recent releases with sparklines for risk score, blocker count, and criteria pass rate.
+- Enable release-to-release diff view for audit trail analysis.
+
+Implementation: `backend/app/api/releases.py`, `backend/app/services/comparison.py`, `frontend/src/ComparisonPanel.tsx`, `frontend/src/App.tsx`
+
+Tests: `backend/tests/test_release_comparison.py`, `frontend/src/workflows.test.tsx`
+
