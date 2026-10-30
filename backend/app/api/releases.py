@@ -19,6 +19,7 @@ from app.models.schemas import (
     ReleaseUpdate,
     RiskAssessmentResponse,
 )
+from app.services.comparison import ComparisonService
 from app.services.export_service import ExportService
 from app.services.release_service import ReleaseService
 
@@ -167,7 +168,7 @@ async def get_risk_assessment(
     criteria = await CriteriaService(db).list_criteria(release_id)
     blockers = await BlockerService(db).list_blockers(release_id)
     from app.services.invariants import current_decisions
-    approvals = await current_decisions(db,release_id)
+    approvals = await current_decisions(db, release_id)
 
     from datetime import datetime, timezone
     days_to_target = 30
@@ -204,9 +205,12 @@ async def get_risk_assessment(
 
     assessment = risk_engine.assess_readiness(release_data, history or None)
     from app.services.invariants import require_ready
-    try:await require_ready(db,release_id);assessment['ready_for_release']=True
+    try:
+        await require_ready(db, release_id)
+        assessment['ready_for_release'] = True
     except ValueError as exc:
-        assessment['ready_for_release']=False;assessment['risk_factors'].append(str(exc))
+        assessment['ready_for_release'] = False
+        assessment['risk_factors'].append(str(exc))
     return assessment
 
 
@@ -246,3 +250,40 @@ async def export_release(
             return Response(content=content, media_type="text/csv")
     except ValueError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
+
+
+@router.get("/comparison/list")
+async def list_releases_for_comparison(
+    db: aiosqlite.Connection = Depends(get_db),
+    user: dict = Depends(require_role("viewer")),
+):
+    """Get all releases available for comparison."""
+    svc = ComparisonService(db)
+    return await svc.get_releases_for_comparison()
+
+
+@router.get("/comparison/trend")
+async def get_risk_trend(
+    limit: int = Query(10, ge=1, le=50),
+    db: aiosqlite.Connection = Depends(get_db),
+    user: dict = Depends(require_role("viewer")),
+):
+    """Get risk trend across recent releases."""
+    svc = ComparisonService(db)
+    return await svc.get_risk_trend(limit)
+
+
+@router.get("/comparison/compare")
+async def compare_releases(
+    release_id_a: str = Query(..., alias="a"),
+    release_id_b: str = Query(..., alias="b"),
+    db: aiosqlite.Connection = Depends(get_db),
+    user: dict = Depends(require_role("viewer")),
+):
+    """Compare two releases side by side."""
+    svc = ComparisonService(db)
+    result = await svc.compare_releases(release_id_a, release_id_b)
+    if not result:
+        raise HTTPException(status_code=404, detail="One or both releases not found")
+    return result
+

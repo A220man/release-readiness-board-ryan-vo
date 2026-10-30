@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "current_feature": "release-search-and-filtering",
+  "current_feature": "release-comparison-and-trending",
   "features": [
     {
       "id": "evidence-backed-releases",
@@ -92,12 +92,11 @@
       "tests": [
         "frontend/src/workflows.test.tsx"
       ]
-    }
-    ,
+    },
     {
       "id": "release-comparison-and-trending",
       "title": "Cross-release comparison and risk trending",
-      "status": "planned",
+      "status": "done",
       "acceptance": [
         "Compare two releases side-by-side showing criteria delta, blocker changes, risk score evolution, and approval history differences.",
         "Display risk trend across recent releases with sparklines for risk score, blocker count, and criteria pass rate.",
