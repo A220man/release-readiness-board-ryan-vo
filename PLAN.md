@@ -4,7 +4,7 @@ Each round completes one feature or repair. Future items are planned, not implem
 
 ## Current round
 
-release-search-and-filtering
+release-comparison-and-trending
 
 ## Roadmap
 
@@ -65,7 +65,7 @@ Tests: `frontend/src/workflows.test.tsx`
 
 ### release-comparison-and-trending — Cross-release comparison and risk trending
 
-Status: planned
+Status: done
 
 Acceptance:
 - Compare two releases side-by-side showing criteria delta, blocker changes, risk score evolution, and approval history differences.
