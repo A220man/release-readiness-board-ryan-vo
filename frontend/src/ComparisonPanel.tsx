@@ -101,6 +101,25 @@ export function ComparisonPanel({releases, onClose}: {releases: Release[]; onClo
       setBusy(false);
     }
   }
+  function exportComparison() {
+    if (!comparison) return;
+    const data = {
+      release_a: comparison.release_a,
+      release_b: comparison.release_b,
+      criteria_delta: comparison.criteria_delta,
+      blocker_changes: comparison.blocker_changes,
+      approval_diff: comparison.approval_diff,
+      risk_delta: comparison.risk_delta,
+      exported_at: new Date().toISOString(),
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `comparison-${comparison.release_a.name}-vs-${comparison.release_b.name}-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 
   function getStatusColor(status: string): string {
     switch (status) {
@@ -152,6 +171,7 @@ export function ComparisonPanel({releases, onClose}: {releases: Release[]; onClo
             <span className={risk_delta > 0 ? 'risk-up' : risk_delta < 0 ? 'risk-down' : 'risk-neutral'}>
               Risk Δ: {risk_delta >= 0 ? '+' : ''}{risk_delta.toFixed(1)}
             </span>
+            <button className="secondary" onClick={exportComparison} style={{marginLeft: '1rem'}}>Export</button>
           </div>
           <div className="release-summary">
             <h3>{release_b.name} v{release_b.version}</h3>

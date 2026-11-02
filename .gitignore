@@ -21,3 +21,9 @@ coverage/
 playwright-report/
 test-results/
 .portfolio-*
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.sqlite3
+*.sqlite3-wal
+*.sqlite3-shm

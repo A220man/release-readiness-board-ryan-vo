@@ -89,3 +89,39 @@ a{color:#62ddc0}
 .badge.ok{background:#123c33;color:#99f1cf}
 .badge.bad{background:#49242e;color:#ffd1dd}
 .badge.warn{background:#423622;color:#fbd592}
+/* Comparison panel trend chart */
+.trend-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+  height: 200px;
+  padding: 1rem 0;
+  border-bottom: 1px solid #2a4052;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+}
+.trend-point {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.4rem;
+  flex: 1;
+  min-width: 80px;
+}
+.trend-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+  min-width: 40px;
+}
+.trend-label {
+  font-size: 0.7rem;
+  color: #9fb6c8;
+  text-align: center;
+  white-space: nowrap;
+}
+.trend-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #4ce0bb;
+}

@@ -1,10 +1,18 @@
 # Changelog
 
+## 1.5.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
 ## 1.4.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
 
-## 1.3.0 — work-in-progress checkpoint
+### 1.4.0 checkpoint improvement
+
+- Add comparison export button to download side-by-side release comparison data as JSON.
+- Add CSS styling for risk trend chart (sparkline bars, labels, values) in comparison panel.
+- All backend (34) and frontend (7) tests pass; frontend builds successfully.
 
 Partial code published for continued development. Known issues: STATUS.md.
 
