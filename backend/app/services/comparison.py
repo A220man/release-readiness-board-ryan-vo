@@ -298,6 +298,11 @@ class ComparisonService:
                 (d["id"],),
             )
             snap_row = await snap_cursor.fetchone()
-            d["risk_score"] = snap_row["risk_score"] if snap_row else 0.0
+            if snap_row:
+                d["risk_score"] = snap_row["risk_score"]
+            else:
+                # Compute current risk score from live data
+                release_full = await self.get_release_full(d["id"])
+                d["risk_score"] = release_full.get("risk_score", 0.0) if release_full else 0.0
             trend.append(d)
         return list(reversed(trend))  # Oldest first for charting
