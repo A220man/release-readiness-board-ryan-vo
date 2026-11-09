@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.7.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
 ## 1.6.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
@@ -52,3 +56,7 @@ Partial code published for continued development. Known issues: STATUS.md.
 - Provide deterministic risk diagnostics, keyword classification, bounded optional model advice, and JSON/Markdown/CSV exports.
 - Add OIDC PKCE login with opaque cookie sessions, CSRF protection, role checks and local-only demo mode.
 - Package the FastAPI backend and React/TypeScript frontend with Docker and CI.
+### 1.6.0 checkpoint improvement
+
+- Fix "Compare Releases" button on releases list to correctly switch to Compare tab and show comparison panel (was setting unused `showCompare` state).
+- All backend (34) and frontend (7) tests pass; frontend builds successfully.

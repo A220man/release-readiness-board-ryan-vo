@@ -36,7 +36,6 @@ export default function App() {
   const [description, setDescription] = useState('');
   const [query, setQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const [showCompare, setShowCompare] = useState(false);
 
   const operator = !!user?.roles.some(r => ['reviewer', 'admin'].includes(r));
   const admin = !!user?.roles.includes('admin');
@@ -257,7 +256,7 @@ export default function App() {
                 <button className="secondary" onClick={resetFilters}>Reset</button>
                 <button className="button" onClick={applySearch}>Search</button>
               </div>
-              <button className="button" onClick={() => setShowCompare(true)} disabled={releases.length < 2}>
+              <button className="button" onClick={() => { setTab('compare'); setSelected(null); }} disabled={releases.length < 2}>
                 Compare Releases
               </button>
               <table className="release-table">
@@ -303,7 +302,7 @@ export default function App() {
           </>
         ) : (
           <>
-            <button className="secondary" onClick={() => { setSelected(null); setShowCompare(false); }}>
+            <button className="secondary" onClick={() => { setSelected(null); setTab('criteria'); }}>
               Back to list
             </button>
             <nav aria-label="Release sections">
@@ -311,7 +310,7 @@ export default function App() {
                 <button
                   key={t}
                   className={tab === t ? 'active' : 'secondary'}
-                  onClick={() => { setTab(t); setShowCompare(t === 'compare'); }}
+                  onClick={() => { setTab(t); }}
                 >
                   {t.charAt(0).toUpperCase() + t.slice(1)}
                 </button>
@@ -329,3 +328,4 @@ export default function App() {
     </>
   );
 }
+
