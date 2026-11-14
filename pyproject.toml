@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "release-readiness-board-ryan-vo"
-version = "1.0.0"
+version = "1.8.0"
 description = "Evidence-backed release readiness with independent approval and deterministic risk diagnostics"
 readme = "README.md"
 license = {text = "MIT"}
