@@ -3,7 +3,7 @@
 > Work in progress. This checkpoint may be incomplete or fail tests. See PLAN.md and STATUS.md before use.
 
 
-Current version: `1.1.0`.
+Current version: `1.8.0`.
 
 A full-stack release workspace for collecting evidence, resolving blockers, obtaining independent approvals and exporting an audit-ready release record. It combines an explicit release state machine with deterministic risk diagnostics and optional model advice. Approval authority stays with authenticated humans; a score or model response cannot release anything.
 
