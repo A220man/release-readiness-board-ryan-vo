@@ -148,7 +148,7 @@ class ComparisonService:
                     "name": name,
                     "status_a": ca["status"],
                     "status_b": cb["status"],
-                    "required": ca["required"],
+                    "required": ca.get("required", False),
                     "changed": ca["status"] != cb["status"],
                 })
             elif ca:
@@ -156,7 +156,7 @@ class ComparisonService:
                     "name": name,
                     "status_a": ca["status"],
                     "status_b": "missing",
-                    "required": ca["required"],
+                    "required": ca.get("required", False),
                     "changed": True,
                 })
             else:
@@ -164,7 +164,7 @@ class ComparisonService:
                     "name": name,
                     "status_a": "missing",
                     "status_b": cb["status"],
-                    "required": cb["required"],
+                    "required": cb.get("required", False),
                     "changed": True,
                 })
 
