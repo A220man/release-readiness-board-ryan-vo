@@ -118,3 +118,51 @@ def test_api_comparison_endpoints(client):
     # Test compare with non-existent release
     resp = client.get("/api/releases/comparison/compare?a=nonexistent&b=" + r2["id"])
     assert resp.status_code == 404
+
+
+def test_api_comparison_different_criteria(client):
+    """Test comparison API with releases that have different criteria sets."""
+    login(client, "analyst")
+    r1 = client.post("/api/releases/", json={"name": "Alpha", "version": "1.0.0"}).json()
+    r2 = client.post("/api/releases/", json={"name": "Beta", "version": "2.0.0"}).json()
+    
+    # Add criterion to release A only (required)
+    c1 = client.post("/api/criteria/", json={"release_id": r1["id"], "name": "Security regression", "category": "security", "required": True})
+    assert c1.status_code == 201
+    
+    # Add criterion to release B only (optional)
+    c2 = client.post("/api/criteria/", json={"release_id": r2["id"], "name": "Performance optimization", "category": "performance", "required": False})
+    assert c2.status_code == 201
+    
+    # Compare releases
+    resp = client.get(f"/api/releases/comparison/compare?a={r1['id']}&b={r2['id']}")
+    assert resp.status_code == 200, resp.text
+    comparison = resp.json()
+    
+    # Verify comparison structure
+    assert "release_a" in comparison
+    assert "release_b" in comparison
+    assert "criteria_delta" in comparison
+    assert "blocker_changes" in comparison
+    assert "approval_diff" in comparison
+    assert "risk_delta" in comparison
+    
+    # Verify criteria delta includes criteria from both releases
+    criteria_delta = comparison["criteria_delta"]
+    names = [c["name"] for c in criteria_delta]
+    assert "Security regression" in names, f"Expected 'Security regression' in criteria delta, got {names}"
+    assert "Performance optimization" in names, f"Expected 'Performance optimization' in criteria delta, got {names}"
+    
+    # Verify the criterion from release A has required=True
+    a_criterion = next(c for c in criteria_delta if c["name"] == "Security regression")
+    assert a_criterion["required"] is True, f"Expected required=True, got {a_criterion['required']!r}"
+    assert a_criterion["status_a"] is not None, "Expected status_a to be set"
+    assert a_criterion["status_b"] == "missing", f"Expected status_b='missing', got {a_criterion['status_b']!r}"
+    assert a_criterion["changed"] is True, "Expected changed=True for criterion only in release A"
+    
+    # Verify the criterion from release B has required=False
+    b_criterion = next(c for c in criteria_delta if c["name"] == "Performance optimization")
+    assert b_criterion["required"] is False, f"Expected required=False, got {b_criterion['required']!r}"
+    assert b_criterion["status_a"] == "missing", f"Expected status_a='missing', got {b_criterion['status_a']!r}"
+    assert b_criterion["status_b"] is not None, "Expected status_b to be set"
+    assert b_criterion["changed"] is True, "Expected changed=True for criterion only in release B"
