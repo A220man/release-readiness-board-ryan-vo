@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.10.0 — work-in-progress checkpoint
+
+Partial code published for continued development. Known issues: STATUS.md.
+
 ## 1.9.0 — work-in-progress checkpoint
 
 Partial code published for continued development. Known issues: STATUS.md.
@@ -64,3 +68,9 @@ Partial code published for continued development. Known issues: STATUS.md.
 
 - Fix "Compare Releases" button on releases list to correctly switch to Compare tab and show comparison panel (was setting unused `showCompare` state).
 - All backend (34) and frontend (7) tests pass; frontend builds successfully.
+
+## 1.9.1 — work-in-progress checkpoint
+
+- Add test coverage for comparison API with releases having different criteria sets (backend/tests/test_release_comparison.py)
+- Improve robustness of `required` field in comparison delta by wrapping with `bool()` in backend/app/services/comparison.py
+- All backend (35) and frontend (7) tests pass; frontend builds successfully.
